@@ -2,6 +2,9 @@
   "name": "babel-live",
   "version": "1.0.1",
   "description": "Live reloading of servers compiled via babel",
+  "files": [
+    "./lib/index.js"
+  ],
   "dependencies": {
     "babel-core": "^6.3.26",
     "chokidar": "^1.4.1",
