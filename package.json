@@ -1,6 +1,6 @@
 {
   "name": "babel-live",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Live reloading of servers compiled via babel",
   "files": [
     "index.js",
