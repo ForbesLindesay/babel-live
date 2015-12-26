@@ -1,0 +1,25 @@
+{
+  "name": "babel-live",
+  "version": "0.0.0",
+  "description": "Live reloading of servers compiled via babel",
+  "dependencies": {
+    "babel-core": "^6.3.26",
+    "chokidar": "^1.4.1",
+    "resolve": "^1.1.6"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.3.17",
+    "babel-preset-forbeslindesay": "^1.0.0",
+    "eslint": "^1.10.3",
+    "eslint-config-forbeslindesay": "^1.0.0"
+  },
+  "scripts": {
+    "prepublish": "npm run build && npm run lint",
+    "build": "babel src --out-dir lib",
+    "lint": "eslint src"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ForbesLindesay/babel-live.git"
+  }
+}
