@@ -3,8 +3,8 @@
   "version": "1.0.3",
   "description": "Live reloading of servers compiled via babel",
   "files": [
-    "./index.js",
-    "./lib/index.js"
+    "index.js",
+    "lib/index.js"
   ],
   "dependencies": {
     "babel-core": "^6.3.26",
