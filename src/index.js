@@ -57,23 +57,30 @@ export default function configure(entrypoint, overrideRequires, opts) {
     const mod = {
       exports: requireCache[filename],
     };
+    function proxiedRequire(id) {
+      if (overrideRequires[id]) {
+        return overrideRequires[id];
+      }
+      const p = resolve.sync(id, {
+        basedir: path.dirname(filename),
+        extensions: ['.js', '.json'],
+      });
+      if (/^\./.test(id)) {
+        return babelRequire(p);
+      } else {
+        return require(p);
+      }
+    }
+    proxiedRequire.resolve = (id) => {
+      return resolve.sync(id, {
+        basedir: path.dirname(filename),
+        extensions: ['.js', '.json'],
+      });
+    };
     const sandbox = {
       'module': mod,
       'exports': mod.exports,
-      'require': (id) => {
-        if (overrideRequires[id]) {
-          return overrideRequires[id];
-        }
-        const p = resolve.sync(id, {
-          basedir: path.dirname(filename),
-          extensions: ['.js', '.json'],
-        });
-        if (/^\./.test(id)) {
-          return babelRequire(p);
-        } else {
-          return require(p);
-        }
-      },
+      'require': proxiedRequire,
       '__filename': filename,
       '__dirname': path.dirname(filename),
     };
