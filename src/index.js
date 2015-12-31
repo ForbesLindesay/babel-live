@@ -14,13 +14,30 @@ export default function configure(entrypoint, overrideRequires, opts) {
   opts = opts || {};
   if (opts.sourceMap !== false) opts.sourceMap = "inline";
 
+  let requireInProgress = false;
+  let extraRequireNeeded = false;
   let requireCache = {};
   // filename => fn(module, exports, require, __filename, __dirname)
   const moduleCache = {};
   function invalidate(filename) {
     requireCache = {};
     moduleCache[filename] = null;
-    babelRequire(entrypoint);
+    doRequire();
+  }
+  function doRequire() {
+    if (!requireInProgress) {
+      requireInProgress = true;
+      babelRequire(entrypoint);
+      setTimeout(() => {
+        requireInProgress = false;
+        if (extraRequireNeeded) {
+          extraRequireNeeded = false;
+          doRequire();
+        }
+      }, 2000);
+    } else {
+      extraRequireNeeded = true;
+    }
   }
 
   const watching = {};
