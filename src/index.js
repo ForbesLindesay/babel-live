@@ -19,6 +19,10 @@ export default function configure(entrypoint, overrideRequires, opts) {
     delete opts.babelCache;
     mkdirp(babelCache);
   }
+  const fallbackRequire = opts.fallbackRequire;
+  if (fallbackRequire) {
+    delete opts.fallbackRequire;
+  }
 
   if (opts.sourceMap !== false) opts.sourceMap = "inline";
 
@@ -36,7 +40,16 @@ export default function configure(entrypoint, overrideRequires, opts) {
   function doRequire() {
     if (!requireInProgress) {
       requireInProgress = true;
-      babelRequire(entrypoint);
+      try {
+        babelRequire(entrypoint);
+      } catch (ex) {
+        if (fallbackRequire) {
+          console.error(ex.stack);
+          babelRequire(fallbackRequire);
+        } else {
+          throw ex;
+        }
+      }
       setTimeout(() => {
         requireInProgress = false;
         if (extraRequireNeeded) {
