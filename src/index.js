@@ -1,10 +1,12 @@
 import path from 'path';
 import fs from'fs';
 import vm from 'vm';
+import {createHash} from 'crypto';
 
 import resolve from 'resolve';
 import chokidar from 'chokidar';
 import {transform} from 'babel-core';
+import {sync as mkdirp} from 'mkdirp';
 
 let called = false;
 export default function configure(entrypoint, overrideRequires, opts) {
@@ -12,6 +14,12 @@ export default function configure(entrypoint, overrideRequires, opts) {
   called = true;
 
   opts = opts || {};
+  const babelCache = opts.babelCache ? path.resolve(opts.babelCache) : null;
+  if (babelCache) {
+    delete opts.babelCache;
+    mkdirp(babelCache);
+  }
+
   if (opts.sourceMap !== false) opts.sourceMap = "inline";
 
   let requireInProgress = false;
@@ -20,6 +28,7 @@ export default function configure(entrypoint, overrideRequires, opts) {
   // filename => fn(module, exports, require, __filename, __dirname)
   const moduleCache = {};
   function invalidate(filename) {
+    console.log('detected file change: ' + filename);
     requireCache = {};
     moduleCache[filename] = null;
     doRequire();
@@ -114,7 +123,22 @@ export default function configure(entrypoint, overrideRequires, opts) {
   function babelLoad(filename) {
     const src = fs.readFileSync(filename, 'utf8');
     opts.filename = filename;
-    return transform(src, opts).code;
+    let hash;
+    if (babelCache) {
+      hash = createHash('sha1').update(src).digest('hex');
+      try {
+        return fs.readFileSync(path.join(babelCache, hash + '.js'), 'utf8');
+      } catch (ex) {
+        if (ex.code !== 'ENOENT') {
+          throw ex;
+        }
+      }
+    }
+    const result = transform(src, opts).code;
+    if (babelCache) {
+      fs.writeFileSync(path.join(babelCache, hash + '.js'), result);
+    }
+    return result;
   }
 
   return babelRequire(entrypoint);
