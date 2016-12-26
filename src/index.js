@@ -81,11 +81,20 @@ export default function configure(entrypoint, overrideRequires, opts) {
 
   function babelRequire(filename) {
     filename = path.resolve(filename);
-    watch(filename);
+    if (!/\.js$/.test(filename)) {
+      return require(filename);
+    }
+    if (!/node_modules/.test(filename)) {
+      watch(filename);
+    }
     if (requireCache[filename]) return requireCache[filename];
     let fn = moduleCache[filename];
     if (!fn) {
-      const src = babelLoad(filename);
+      const src = (
+        !/node_modules/.test(filename)
+        ? babelLoad(filename)
+        : fs.readFileSync(filename, 'utf8')
+      );
       fn = vm.runInThisContext(
         '(function(module,exports,require,__filename,__dirname){' + src + '\n})',
         filename
@@ -102,18 +111,15 @@ export default function configure(entrypoint, overrideRequires, opts) {
       }
       const p = resolve.sync(id, {
         basedir: path.dirname(filename),
-        extensions: ['.js', '.json'],
+        extensions: ['.js', '.json', '.node'],
       });
-      if (/^\./.test(id)) {
-        return babelRequire(p);
-      } else {
-        return require(p);
-      }
+
+      return babelRequire(p);
     }
     proxiedRequire.resolve = (id) => {
       return resolve.sync(id, {
         basedir: path.dirname(filename),
-        extensions: ['.js', '.json'],
+        extensions: ['.js', '.json', '.node'],
       });
     };
     const sandbox = {
