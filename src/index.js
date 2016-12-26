@@ -109,6 +109,11 @@ export default function configure(entrypoint, overrideRequires, opts) {
       if (overrideRequires[id]) {
         return overrideRequires[id];
       }
+
+      if (resolve.isCore(id)) {
+        return require(id);
+      }
+
       const p = resolve.sync(id, {
         basedir: path.dirname(filename),
         extensions: ['.js', '.json', '.node'],
