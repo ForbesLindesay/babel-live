@@ -10,18 +10,21 @@
     "babel-core": "^6.3.26",
     "chokidar": "^1.4.1",
     "mkdirp": "^0.5.1",
-    "resolve": "^1.1.6"
+    "resolve": "^1.1.6",
+    "source-map-support": "^0.4.8"
   },
   "devDependencies": {
-    "babel-cli": "^6.3.17",
-    "babel-preset-forbeslindesay": "^1.0.0",
-    "eslint": "^1.10.3",
-    "eslint-config-forbeslindesay": "^1.0.0"
+    "babel-cli": "*",
+    "babel-preset-forbeslindesay": "*",
+    "eslint": "*",
+    "eslint-config-forbeslindesay": "*",
+    "testit": "^2.1.2"
   },
   "scripts": {
     "prepublish": "npm run build && npm run lint",
     "build": "babel src --out-dir lib",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "test": "eslint src && babel-node test/index.js"
   },
   "repository": {
     "type": "git",
