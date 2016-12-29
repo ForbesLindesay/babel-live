@@ -7,7 +7,6 @@ import resolve from 'resolve';
 import chokidar from 'chokidar';
 import {transform} from 'babel-core';
 import {sync as mkdirp} from 'mkdirp';
-import sourceMapSupport from "source-map-support";
 
 let called = false;
 export default function configure(entrypoint, overrideRequires, opts, onValue, onError) {
@@ -54,6 +53,8 @@ export default function configure(entrypoint, overrideRequires, opts, onValue, o
   // filename => fn(module, exports, require, __filename, __dirname)
   const moduleCache = {};
   const maps = {};
+  /*
+  // TODO: source maps in a VM are different
   sourceMapSupport.install({
     handleUncaughtExceptions: false,
     environment: 'node',
@@ -69,6 +70,7 @@ export default function configure(entrypoint, overrideRequires, opts, onValue, o
       }
     },
   });
+  */
 
   function invalidate(filename) {
     console.log('detected file change: ' + filename);
