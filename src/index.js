@@ -40,7 +40,7 @@ export default function configure(entrypoint, overrideRequires, opts, onValue, o
     }
     if (fallbackRequire) {
       const result = babelRequire(fallbackRequire);
-      if (onValue) onValue(result);
+      onValue(result);
       return result;
     }
   }
@@ -83,7 +83,7 @@ export default function configure(entrypoint, overrideRequires, opts, onValue, o
       requireInProgress = true;
       try {
         const result = babelRequire(entrypoint);
-        if (onValue) onValue(result);
+        onValue(result);
       } catch (ex) {
         handleError(ex);
       }
@@ -206,8 +206,13 @@ export default function configure(entrypoint, overrideRequires, opts, onValue, o
   }
   try {
     const result = babelRequire(entrypoint);
-    if (onValue) onValue(result);
-    return result;
+    onValue(result);
+    return {
+      reRun() {
+        requireCache = {};
+        doRequire();
+      },
+    };
   } catch (ex) {
     return handleError(ex);
   }
