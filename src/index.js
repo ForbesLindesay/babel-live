@@ -124,7 +124,7 @@ export default function configure(entrypoint, overrideRequires, opts, onValue, o
     if (!/node_modules/.test(filename)) {
       watch(filename);
     }
-    if (requireCache[filename]) return requireCache[filename];
+    if (requireCache[filename]) return requireCache[filename].exports;
     let fn = moduleCache[filename];
     if (!fn) {
       const src = (
@@ -138,9 +138,8 @@ export default function configure(entrypoint, overrideRequires, opts, onValue, o
       );
       moduleCache[filename] = fn;
     }
-    requireCache[filename] = {};
-    const mod = {
-      exports: requireCache[filename],
+    requireCache[filename] = {
+      exports: {},
     };
     function proxiedRequire(id) {
       if (overrideRequires[id]) {
@@ -165,8 +164,8 @@ export default function configure(entrypoint, overrideRequires, opts, onValue, o
       });
     };
     const sandbox = {
-      'module': mod,
-      'exports': mod.exports,
+      'module': requireCache[filename],
+      'exports': requireCache[filename].exports,
       'require': proxiedRequire,
       '__filename': filename,
       '__dirname': path.dirname(filename),
@@ -178,7 +177,7 @@ export default function configure(entrypoint, overrideRequires, opts, onValue, o
       sandbox.__filename,
       sandbox.__dirname
     );
-    return requireCache[filename] = mod.exports;
+    return requireCache[filename].exports;
   }
 
   function babelLoad(filename) {
