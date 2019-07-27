@@ -12,14 +12,15 @@ mkdir(__dirname + '/workspace');
 function write(filename, data) {
   writeFileSync(__dirname + '/workspace' + filename, data);
 }
-write('/index.js', 'export default function () { return "version 1"; }');
+write('/index.js', 'import add from "./add";export default function () { return add("version ", "1"); }');
 write('/fallback.js', 'export default function () { return "fallback"; }');
+write('/add.ts', 'export default function add(a: string, b: string) { return a + b; }');
 let file;
 let lastError;
 load(
   __dirname + '/workspace/index.js',
   {},
-  {fallbackRequire: __dirname + '/workspace/fallback.js'},
+  {fallbackRequire: __dirname + '/workspace/fallback.js', resolveOptions: {extensions: ['.ts']}},
   _file => file = _file,
   _err => lastError = _err,
 );

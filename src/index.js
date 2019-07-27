@@ -5,7 +5,7 @@ import {createHash} from 'crypto';
 
 import resolve from 'resolve';
 import chokidar from 'chokidar';
-import {transform} from 'babel-core';
+import {transform} from '@babel/core';
 import {sync as mkdirp} from 'mkdirp';
 
 let called = false;
@@ -18,6 +18,10 @@ export default function configure(entrypoint, overrideRequires, opts, onValue, o
   if (babelCache) {
     delete opts.babelCache;
     mkdirp(babelCache);
+  }
+  const resolveOptions = opts.resolveOptions || {};
+  if (resolveOptions) {
+    delete opts.resolveOptions;
   }
   const fallbackRequire = opts.fallbackRequire;
   if (fallbackRequire) {
@@ -44,8 +48,6 @@ export default function configure(entrypoint, overrideRequires, opts, onValue, o
       return result;
     }
   }
-
-  if (opts.sourceMap !== false) opts.sourceMap = "inline";
 
   let requireInProgress = false;
   let extraRequireNeeded = false;
@@ -118,7 +120,7 @@ export default function configure(entrypoint, overrideRequires, opts, onValue, o
 
   function babelRequire(filename) {
     filename = path.resolve(filename);
-    if (!/\.js$/.test(filename)) {
+    if (!/\.js$/.test(filename) && !(resolveOptions && resolveOptions.extensions && resolveOptions.extensions.some(ext => filename.endsWith(ext)))) {
       return require(filename);
     }
     if (!/node_modules/.test(filename)) {
@@ -152,7 +154,8 @@ export default function configure(entrypoint, overrideRequires, opts, onValue, o
 
       const p = resolve.sync(id, {
         basedir: path.dirname(filename),
-        extensions: ['.js', '.json', '.node'],
+        ...resolveOptions,
+        extensions: [...(resolveOptions.extensions || []), '.js', '.json', '.node'],
       });
 
       return babelRequire(p);

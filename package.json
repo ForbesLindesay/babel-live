@@ -7,24 +7,23 @@
     "lib/index.js"
   ],
   "dependencies": {
-    "babel-core": "^6.3.26",
+    "@babel/core": "^7.5.5",
     "chokidar": "^1.4.1",
     "mkdirp": "^0.5.1",
-    "resolve": "^1.1.6",
+    "resolve": "^1.11.1",
     "source-map-support": "^0.4.8"
   },
   "devDependencies": {
-    "babel-cli": "*",
-    "babel-preset-forbeslindesay": "*",
-    "eslint": "*",
-    "eslint-config-forbeslindesay": "*",
-    "testit": "^2.1.2"
+    "@babel/cli": "^7.5.5",
+    "@babel/node": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "@babel/preset-typescript": "^7.3.3",
+    "testit": "^3.1.0"
   },
   "scripts": {
-    "prepublish": "npm run build && npm run lint",
+    "prepublish": "npm run build",
     "build": "babel src --out-dir lib",
-    "lint": "eslint src",
-    "test": "eslint src && babel-node test/index.js"
+    "test": "babel-node test/index.js"
   },
   "repository": {
     "type": "git",
